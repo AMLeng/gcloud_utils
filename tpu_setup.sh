@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 
-# To be run with
-# gtpu -a scp worker_setup.sh "$TPU_NAME":~/
-# gtpu -a ssh "$TPU_NAME" --command="sudo -E bash ~/worker_setup.sh"
+# To be run with use-tpu --init, or manually:
+# gpush tpu_setup.sh
+# gssh "sudo REMOTE_USER=$REMOTE_USER bash ~/tpu_setup.sh"
 
 set -e
+
+if ! curl -sf -m 1 -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/ > /dev/null 2>&1; then
+    echo "ERROR: This script must be run on a GCP instance, not the host machine." >&2
+    exit 1
+fi
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update

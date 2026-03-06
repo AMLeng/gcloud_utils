@@ -17,17 +17,31 @@ source "$SCRIPT_DIR/env.sh"
 # --- Mode switching ---
 
 use-tpu() {
+    local init=false
+    if [[ "${1:-}" == "--init" ]]; then
+        init=true
+        shift
+    fi
     export GCLOUD_MODE="tpu"
     export ZONE="$TPU_ZONE"
     export REGION="$TPU_REGION"
     export NODE_NAME="$TPU_NAME"
     echo "Active: TPU  node=$NODE_NAME  zone=$ZONE"
+    if [[ "$init" == true ]]; then
+        gpush "$SCRIPT_DIR/tpu_setup.sh"
+        gssh "sudo REMOTE_USER=$REMOTE_USER bash ~/tpu_setup.sh"
+    fi
 }
 
 use-cpu() {
+    local init=false
+    if [[ "${1:-}" == "--init" ]]; then
+        init=true
+        shift
+    fi
     local name="${1:-$CPU_NAME}"
     if [[ -z "$name" ]]; then
-        echo "Usage: use-cpu INSTANCE_NAME (or set CPU_NAME in env.sh)" >&2
+        echo "Usage: use-cpu [--init] INSTANCE_NAME (or set CPU_NAME in env.sh)" >&2
         return 1
     fi
     export GCLOUD_MODE="cpu"
@@ -35,6 +49,10 @@ use-cpu() {
     export REGION="$CPU_REGION"
     export NODE_NAME="$name"
     echo "Active: CPU  node=$NODE_NAME  zone=$ZONE"
+    if [[ "$init" == true ]]; then
+        gpush "$SCRIPT_DIR/cpu_setup.sh"
+        gssh "sudo REMOTE_USER=$REMOTE_USER TARGET_REPO=$TARGET_REPO bash ~/cpu_setup.sh"
+    fi
 }
 
 _require_mode() {

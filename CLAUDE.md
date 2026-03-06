@@ -8,7 +8,8 @@ Bash helper scripts for managing GCP compute instances (CPU and TPU).
 - `env.sh.example` — Template for `env.sh`. Safe to commit.
 - `setup.sh` — Sourced (not executed) to load env vars and define shell helper functions.
 - `create_cpu_instance.sh` — Executable script to provision a CPU instance using `CPU_NAME` from `env.sh`.
-- `worker_setup.sh` — Runs on TPU workers to install Python 3.11 and JAX in a venv (`~/jax-env`).
+- `cpu_setup.sh` — Runs on a CPU instance to install uv and clone `TARGET_REPO`.
+- `tpu_setup.sh` — Runs on TPU workers to install Python 3.11 and JAX in a venv (`~/jax-env`).
 
 ## Design principles
 
@@ -20,7 +21,7 @@ Bash helper scripts for managing GCP compute instances (CPU and TPU).
 
 ## Key variables (from env.sh)
 
-- `PROJECT`, `SERVICE_ACCOUNT`, `REMOTE_USER` — GCP project, service account, and remote username
+- `PROJECT`, `SERVICE_ACCOUNT`, `REMOTE_USER`, `TARGET_REPO` — GCP project, service account, remote username, and repo to clone
 - `CPU_ZONE`, `CPU_REGION`, `CPU_NAME` — CPU instance config
 - `TPU_ZONE`, `TPU_REGION`, `TPU_NAME`, `NUM_WORKERS` — TPU config
 

@@ -61,6 +61,12 @@ else
     cd "\$REPO_DIR"
 fi
 if [[ -f pyproject.toml ]]; then
-    uv sync
+    uv sync$(for extra in ${UV_EXTRAS:-}; do printf ' --extra %s' "$extra"; done)
 fi
 EOF
+
+if [ -f /var/run/reboot-required ]; then
+    echo ""
+    echo "*** System restart required ***"
+    echo "Run 'gssh \"sudo reboot\"' then reconnect after ~30 seconds."
+fi

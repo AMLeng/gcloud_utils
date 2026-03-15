@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
+# Provision a GCP CPU compute instance with monitoring and daily snapshots.
+#
+# Requires: source env.sh before running.
+# Usage: ./create_cpu_instance.sh
+#
+# Creates a c4-standard-8 instance with:
+#   - 100GB Hyperdisk Balanced boot disk (Debian 12)
+#   - Ops Agent monitoring/logging policy
+#   - Daily snapshot schedule (14-day retention)
+
 set -euo pipefail
 
 : "${PROJECT:?PROJECT must be set (source env.sh first)}"
@@ -6,8 +16,7 @@ set -euo pipefail
 : "${CPU_ZONE:?CPU_ZONE must be set (source env.sh first)}"
 : "${CPU_REGION:?CPU_REGION must be set (source env.sh first)}"
 : "${CPU_NAME:?CPU_NAME must be set in env.sh}"
-
-MACHINE_TYPE="c4-standard-8"
+: "${CPU_MACHINE_TYPE:?CPU_MACHINE_TYPE must be set in env.sh}"
 SNAPSHOT_SCHEDULE="default-schedule-1"
 OPS_AGENT_POLICY="goog-ops-agent-v2-template-1-5-0-${CPU_ZONE}"
 
@@ -17,7 +26,7 @@ echo "Creating instance: ${CPU_NAME}"
 gcloud compute instances create "${CPU_NAME}" \
   --project="${PROJECT}" \
   --zone="${CPU_ZONE}" \
-  --machine-type="${MACHINE_TYPE}" \
+  --machine-type="${CPU_MACHINE_TYPE}" \
   --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \
   --metadata=enable-osconfig=TRUE \
   --maintenance-policy=MIGRATE \

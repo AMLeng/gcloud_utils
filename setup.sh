@@ -18,9 +18,11 @@ source "$SCRIPT_DIR/env.sh"
 
 use-tpu() {
     local init=false
+    local init_args=()
     if [[ "${1:-}" == "--init" ]]; then
         init=true
         shift
+        init_args=("$@")
     fi
     export GCLOUD_MODE="tpu"
     export ZONE="$TPU_ZONE"
@@ -29,7 +31,7 @@ use-tpu() {
     echo "Active: TPU  node=$NODE_NAME  zone=$ZONE"
     if [[ "$init" == true ]]; then
         gpush "$SCRIPT_DIR/tpu_setup.sh"
-        gssh "sudo REMOTE_USER=$REMOTE_USER bash ~/tpu_setup.sh"
+        gssh "sudo REMOTE_USER=$REMOTE_USER TARGET_REPO=$TARGET_REPO UV_EXTRAS='$UV_EXTRAS' bash ~/tpu_setup.sh ${init_args[*]:-}"
     fi
 }
 
@@ -51,7 +53,7 @@ use-cpu() {
     echo "Active: CPU  node=$NODE_NAME  zone=$ZONE"
     if [[ "$init" == true ]]; then
         gpush "$SCRIPT_DIR/cpu_setup.sh"
-        gssh "sudo REMOTE_USER=$REMOTE_USER TARGET_REPO=$TARGET_REPO bash ~/cpu_setup.sh"
+        gssh "sudo REMOTE_USER=$REMOTE_USER TARGET_REPO=$TARGET_REPO UV_EXTRAS='$UV_EXTRAS' bash ~/cpu_setup.sh"
     fi
 }
 
@@ -134,8 +136,8 @@ gpython() {
     fi
 
     if [[ "$GCLOUD_MODE" == "tpu" ]]; then
-        # The worker_setup.sh script sets up a venv for a more recent version of python in jax-env; we use this when running our scripts
-        gtpu -a ssh "$NODE_NAME" --command="source ~/jax-env/bin/activate && python3 ~/$basename $*"
+        # Use jax-env venv if it exists (--venv-only setup), otherwise run directly
+        gtpu -a ssh "$NODE_NAME" --command="if [ -d ~/jax-env ]; then source ~/jax-env/bin/activate; fi && python3 ~/$basename $*"
     else
         gssh "python3 ~/$basename $*"
     fi

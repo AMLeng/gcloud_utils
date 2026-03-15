@@ -41,8 +41,15 @@ if [[ ! -f ~/.ssh/deploy_key ]]; then
     exit 0
 fi
 
-# Use the deploy key for git operations
-export GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes"
+# Configure SSH to always use the deploy key for GitHub
+if ! grep -q "Host github.com" ~/.ssh/config 2>/dev/null; then
+    cat >> ~/.ssh/config <<'SSHEOF'
+Host github.com
+    IdentityFile ~/.ssh/deploy_key
+    IdentitiesOnly yes
+SSHEOF
+    chmod 600 ~/.ssh/config
+fi
 REPO_DIR="\$(basename "${TARGET_REPO}" .git)"
 if [[ -d "\$REPO_DIR" ]]; then
     cd "\$REPO_DIR"

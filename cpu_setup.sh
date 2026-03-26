@@ -17,7 +17,7 @@ fi
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
-apt-get install -y git
+apt-get install -y git htop
 
 # Install uv, generate deploy key, and clone repo as the actual user
 su - "${REMOTE_USER}" <<EOF

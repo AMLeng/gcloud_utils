@@ -42,7 +42,7 @@ apt-get update
 apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 
 if [ "${VENV_ONLY}" = true ]; then
-    apt-get install -y python3.11 python3.11-venv python3.11-dev
+    apt-get install -y python3.11 python3.11-venv python3.11-dev htop
 
     su - "${REMOTE_USER}" <<'EOF'
 python3.11 -m venv ~/jax-env
@@ -52,7 +52,7 @@ pip install -U "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_
 EOF
 else
     : "${TARGET_REPO:?TARGET_REPO must be set}"
-    apt-get install -y git
+    apt-get install -y git htop
 
     su - "${REMOTE_USER}" <<EOF
 mkdir -p ~/.ssh

@@ -120,6 +120,29 @@ gpush() {
     fi
 }
 
+gpull() {
+    _require_mode || return 1
+    local scp_flags=()
+    local tpu_flags=()
+    if [[ "${1:-}" == "-r" ]]; then
+        scp_flags+=("--recurse")
+        shift
+    fi
+    if [[ "${1:-}" == "-a" ]] || [[ "${1:-}" =~ ^-[0-9]+$ ]]; then
+        tpu_flags+=("$1")
+        shift
+    fi
+
+    local remote_path="$1"
+    local local_path="${2:-.}"
+
+    if [[ "$GCLOUD_MODE" == "tpu" ]]; then
+        gtpu "${tpu_flags[@]}" scp "${scp_flags[@]}" "$NODE_NAME":"$remote_path" "$local_path"
+    else
+        gcloud compute scp "${scp_flags[@]}" "$NODE_NAME":"$remote_path" "$local_path" --zone="$ZONE" --project="$PROJECT"
+    fi
+}
+
 gpython() {
     _require_mode || return 1
     local skip_scp=false

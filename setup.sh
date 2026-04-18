@@ -14,6 +14,22 @@ if [[ ! -f "$SCRIPT_DIR/env.sh" ]]; then
 fi
 source "$SCRIPT_DIR/env.sh"
 
+# --- Prompt tagging ---
+
+# Save the original PS1 once so re-sourcing doesn't stack tags.
+if [[ -z "${_GCLOUD_ORIG_PS1:-}" ]]; then
+    export _GCLOUD_ORIG_PS1="$PS1"
+fi
+
+# _gcloud_set_prompt TAG COLOR — prepend a colored [TAG] to the saved PS1.
+_gcloud_set_prompt() {
+    local tag="$1"
+    local color="$2"
+    PS1="\[\e[1;${color}m\][${tag}]\[\e[0m\] ${_GCLOUD_ORIG_PS1}"
+}
+
+_gcloud_set_prompt "gcloud" "36"
+
 # --- Mode switching ---
 
 use-tpu() {
@@ -28,6 +44,7 @@ use-tpu() {
     export ZONE="$TPU_ZONE"
     export REGION="$TPU_REGION"
     export NODE_NAME="$TPU_NAME"
+    _gcloud_set_prompt "tpu:$NODE_NAME" "33"
     echo "Active: TPU  node=$NODE_NAME  zone=$ZONE"
     if [[ "$init" == true ]]; then
         gpush "$SCRIPT_DIR/tpu_setup.sh"
@@ -50,6 +67,7 @@ use-cpu() {
     export ZONE="$CPU_ZONE"
     export REGION="$CPU_REGION"
     export NODE_NAME="$name"
+    _gcloud_set_prompt "cpu:$NODE_NAME" "32"
     echo "Active: CPU  node=$NODE_NAME  zone=$ZONE"
     if [[ "$init" == true ]]; then
         gpush "$SCRIPT_DIR/cpu_setup.sh"

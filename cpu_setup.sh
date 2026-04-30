@@ -26,46 +26,55 @@ ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null
 curl -LsSf https://astral.sh/uv/install.sh | sh
 export PATH="\$HOME/.local/bin:\$PATH"
 
-# Generate a deploy key if one doesn't exist
-if [[ ! -f ~/.ssh/deploy_key ]]; then
-    ssh-keygen -t ed25519 -f ~/.ssh/deploy_key -N "" -C "deploy-key-\$(hostname)"
-    echo ""
-    echo "=========================================="
-    echo "Add this deploy key to your GitHub repo:"
-    echo "  Repo → Settings → Deploy keys → Add deploy key"
-    echo "=========================================="
-    cat ~/.ssh/deploy_key.pub
-    echo "=========================================="
-    echo "Then re-run 'use-cpu --init' to clone the repo."
-    echo ""
-    exit 0
-fi
+REPO_DIR="\$(basename "${TARGET_REPO}" .git)"
+REPO_PATH="\$(echo "${TARGET_REPO}" | sed -E 's|.*github\.com[:/]||; s|\.git\$||')"
 
-# Configure SSH to always use the deploy key for GitHub
-if ! grep -q "Host github.com" ~/.ssh/config 2>/dev/null; then
-    cat >> ~/.ssh/config <<'SSHEOF'
+if [[ -d "\$REPO_DIR" ]]; then
+    echo "Repo already cloned; pulling latest."
+    cd "\$REPO_DIR"
+    git pull
+else
+    # If a deploy key already exists, make sure SSH is configured to use it
+    # before attempting the clone.
+    if [[ -f ~/.ssh/deploy_key ]] && ! grep -q "Host github.com" ~/.ssh/config 2>/dev/null; then
+        cat >> ~/.ssh/config <<'SSHEOF'
 Host github.com
     IdentityFile ~/.ssh/deploy_key
     IdentitiesOnly yes
 SSHEOF
-    chmod 600 ~/.ssh/config
-fi
-REPO_DIR="\$(basename "${TARGET_REPO}" .git)"
-if [[ -d "\$REPO_DIR" ]]; then
-    cd "\$REPO_DIR"
-    git pull
-elif ! git clone "${TARGET_REPO}"; then
-    # Extract owner/repo from git@github.com:owner/repo.git or https://github.com/owner/repo.git
-    REPO_PATH="\$(echo "${TARGET_REPO}" | sed -E 's|.*github\.com[:/]||; s|\.git\$||')"
-    echo ""
-    echo "ERROR: Failed to clone. Make sure the deploy key is added to the repo:"
-    echo "  https://github.com/\$REPO_PATH/settings/keys"
-    echo ""
-    echo "Public key to add:"
-    cat ~/.ssh/deploy_key.pub
-    exit 1
-else
-    cd "\$REPO_DIR"
+        chmod 600 ~/.ssh/config
+    fi
+
+    echo "Cloning \$REPO_PATH..."
+    if git clone "${TARGET_REPO}"; then
+        cd "\$REPO_DIR"
+    elif [[ ! -f ~/.ssh/deploy_key ]]; then
+        # Clone failed and we have no deploy key — likely a private repo.
+        # Generate one so the user can authorize this node.
+        echo ""
+        echo "Clone failed. If \$REPO_PATH is private, you'll need to add a deploy key."
+        echo "Generating one now..."
+        ssh-keygen -t ed25519 -f ~/.ssh/deploy_key -N "" -C "deploy-key-\$(hostname)"
+        echo ""
+        echo "=========================================="
+        echo "Add this deploy key to your GitHub repo:"
+        echo "  https://github.com/\$REPO_PATH/settings/keys"
+        echo "=========================================="
+        cat ~/.ssh/deploy_key.pub
+        echo "=========================================="
+        echo "Then re-run 'use-cpu --init' to retry the clone."
+        echo ""
+        exit 0
+    else
+        # We had a deploy key and the clone still failed — key is probably
+        # not authorized on the repo (or TARGET_REPO is wrong).
+        echo ""
+        echo "ERROR: Clone failed even though a deploy key is configured."
+        echo "Make sure this key is added to https://github.com/\$REPO_PATH/settings/keys :"
+        echo ""
+        cat ~/.ssh/deploy_key.pub
+        exit 1
+    fi
 fi
 if [[ -f pyproject.toml ]]; then
     uv sync$(for extra in ${UV_EXTRAS:-}; do printf ' --extra %s' "$extra"; done)

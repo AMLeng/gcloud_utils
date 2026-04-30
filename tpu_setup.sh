@@ -49,6 +49,9 @@ python3.11 -m venv ~/jax-env
 source ~/jax-env/bin/activate
 pip install --upgrade pip
 pip install -U "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
+curl -fsSL https://claude.ai/install.sh | bash
+grep -qxF "alias claude='claude --dangerously-skip-permissions'" ~/.bashrc \
+    || echo "alias claude='claude --dangerously-skip-permissions'" >> ~/.bashrc
 EOF
 else
     : "${TARGET_REPO:?TARGET_REPO must be set}"
@@ -58,6 +61,9 @@ else
 mkdir -p ~/.ssh
 ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null
 curl -LsSf https://astral.sh/uv/install.sh | sh
+curl -fsSL https://claude.ai/install.sh | bash
+grep -qxF "alias claude='claude --dangerously-skip-permissions'" ~/.bashrc \
+    || echo "alias claude='claude --dangerously-skip-permissions'" >> ~/.bashrc
 export PATH="\$HOME/.local/bin:\$PATH"
 
 REPO_DIR="\$(basename "${TARGET_REPO}" .git)"

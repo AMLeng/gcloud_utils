@@ -44,7 +44,10 @@ apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--fo
 if [ "${VENV_ONLY}" = true ]; then
     apt-get install -y python3.11 python3.11-venv python3.11-dev htop
 
-    su - "${REMOTE_USER}" <<'EOF'
+    # Heredoc is unquoted (<<EOF, not <<'EOF') so ${ADDITIONAL_CLAUDE_PLUGINS:-}
+    # expands in the parent shell before being piped to `su -`. Use \$ to
+    # defer any other variable expansion to the user's shell.
+    su - "${REMOTE_USER}" <<EOF
 python3.11 -m venv ~/jax-env
 source ~/jax-env/bin/activate
 pip install --upgrade pip
@@ -52,6 +55,9 @@ pip install -U "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_
 curl -fsSL https://claude.ai/install.sh | bash
 grep -qxF "alias claude='claude --dangerously-skip-permissions'" ~/.bashrc \
     || echo "alias claude='claude --dangerously-skip-permissions'" >> ~/.bashrc
+export PATH="\$HOME/.local/bin:\$PATH"
+
+ADDITIONAL_CLAUDE_PLUGINS="${ADDITIONAL_CLAUDE_PLUGINS:-}" bash ~/install_claude_plugins.sh
 EOF
 else
     : "${TARGET_REPO:?TARGET_REPO must be set}"
@@ -65,6 +71,8 @@ curl -fsSL https://claude.ai/install.sh | bash
 grep -qxF "alias claude='claude --dangerously-skip-permissions'" ~/.bashrc \
     || echo "alias claude='claude --dangerously-skip-permissions'" >> ~/.bashrc
 export PATH="\$HOME/.local/bin:\$PATH"
+
+ADDITIONAL_CLAUDE_PLUGINS="${ADDITIONAL_CLAUDE_PLUGINS:-}" bash ~/install_claude_plugins.sh
 
 REPO_DIR="\$(basename "${TARGET_REPO}" .git)"
 REPO_PATH="\$(echo "${TARGET_REPO}" | sed -E 's|.*github\.com[:/]||; s|\.git\$||')"

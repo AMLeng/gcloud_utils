@@ -47,8 +47,8 @@ use-tpu() {
     _gcloud_set_prompt "tpu:$NODE_NAME" "33"
     echo "Active: TPU  node=$NODE_NAME  zone=$ZONE"
     if [[ "$init" == true ]]; then
-        gpush "$SCRIPT_DIR/tpu_setup.sh"
-        gssh "sudo REMOTE_USER=$REMOTE_USER TARGET_REPO=$TARGET_REPO UV_EXTRAS='$UV_EXTRAS' bash ~/tpu_setup.sh ${init_args[*]:-}"
+        gpush "$SCRIPT_DIR/tpu_setup.sh" "$SCRIPT_DIR/install_claude_plugins.sh"
+        gssh "sudo REMOTE_USER=$REMOTE_USER TARGET_REPO=$TARGET_REPO UV_EXTRAS='$UV_EXTRAS' ADDITIONAL_CLAUDE_PLUGINS='${ADDITIONAL_CLAUDE_PLUGINS:-}' bash ~/tpu_setup.sh ${init_args[*]:-}"
     fi
 }
 
@@ -70,8 +70,8 @@ use-cpu() {
     _gcloud_set_prompt "cpu:$NODE_NAME" "32"
     echo "Active: CPU  node=$NODE_NAME  zone=$ZONE"
     if [[ "$init" == true ]]; then
-        gpush "$SCRIPT_DIR/cpu_setup.sh"
-        gssh "sudo REMOTE_USER=$REMOTE_USER TARGET_REPO=$TARGET_REPO UV_EXTRAS='$UV_EXTRAS' bash ~/cpu_setup.sh"
+        gpush "$SCRIPT_DIR/cpu_setup.sh" "$SCRIPT_DIR/install_claude_plugins.sh"
+        gssh "sudo REMOTE_USER=$REMOTE_USER TARGET_REPO=$TARGET_REPO UV_EXTRAS='$UV_EXTRAS' ADDITIONAL_CLAUDE_PLUGINS='${ADDITIONAL_CLAUDE_PLUGINS:-}' bash ~/cpu_setup.sh"
     fi
 }
 

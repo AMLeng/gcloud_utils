@@ -29,6 +29,8 @@ grep -qxF "alias claude='claude --dangerously-skip-permissions'" ~/.bashrc \
     || echo "alias claude='claude --dangerously-skip-permissions'" >> ~/.bashrc
 export PATH="\$HOME/.local/bin:\$PATH"
 
+ADDITIONAL_CLAUDE_PLUGINS="${ADDITIONAL_CLAUDE_PLUGINS:-}" bash ~/install_claude_plugins.sh
+
 REPO_DIR="\$(basename "${TARGET_REPO}" .git)"
 REPO_PATH="\$(echo "${TARGET_REPO}" | sed -E 's|.*github\.com[:/]||; s|\.git\$||')"
 

@@ -11,6 +11,7 @@ Bash helper scripts for managing GCP compute instances (CPU and TPU).
 - `create_tpu_instance.sh` — Provisions a TPU VM directly, or via queued resources with `-q`/`--queued`.
 - `cpu_setup.sh` — Runs on a CPU instance to install uv, set up a deploy key, and clone `TARGET_REPO`.
 - `tpu_setup.sh` — Runs on TPU workers to install uv and clone `TARGET_REPO`. With `--venv-only`, skips the repo and installs a JAX venv (`~/jax-env`) instead.
+- `install_claude_plugins.sh` — Runs on a remote node (as the unprivileged user) to install Superpowers plus any `ADDITIONAL_CLAUDE_PLUGINS`. Pushed alongside the setup scripts and invoked from inside their `su -` heredocs.
 
 ## Design principles
 
@@ -25,6 +26,7 @@ Bash helper scripts for managing GCP compute instances (CPU and TPU).
 - `PROJECT`, `SERVICE_ACCOUNT`, `REMOTE_USER`, `TARGET_REPO` — GCP project, service account, remote username, and repo to clone
 - `CPU_ZONE`, `CPU_REGION`, `CPU_NAME`, `CPU_MACHINE_TYPE` — CPU instance config
 - `TPU_ZONE`, `TPU_REGION`, `TPU_NAME`, `TPU_QUEUE_NAME`, `TPU_ACCELERATOR_TYPE`, `TPU_RUNTIME_VERSION`, `NUM_WORKERS` — TPU config
+- `ADDITIONAL_CLAUDE_PLUGINS` — optional newline-separated list of extra Claude Code plugins to install on remote nodes (Superpowers is always installed). Each entry is `"<marketplace-source> <plugin@marketplace>"`.
 
 ## Important rules
 

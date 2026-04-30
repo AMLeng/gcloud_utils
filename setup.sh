@@ -184,6 +184,30 @@ gpython() {
     fi
 }
 
+gforward() {
+    _require_mode || return 1
+    local worker=0
+    if [[ "${1:-}" =~ ^-([0-9]+)$ ]]; then
+        worker="${BASH_REMATCH[1]}"
+        shift
+    fi
+    if [[ $# -lt 1 ]]; then
+        echo "Usage: gforward [-WORKER] LOCAL_PORT[:REMOTE_PORT]" >&2
+        return 1
+    fi
+    local spec="$1"
+    local lport="${spec%%:*}"
+    local rport="${spec##*:}"
+
+    if [[ "$GCLOUD_MODE" == "tpu" ]]; then
+        echo "Forwarding localhost:$lport -> $NODE_NAME (worker $worker):$rport (Ctrl-C to stop)"
+        gcloud compute tpus tpu-vm ssh "$NODE_NAME" --zone="$TPU_ZONE" --project="$PROJECT" --worker="$worker" -- -N -L "${lport}:localhost:${rport}"
+    else
+        echo "Forwarding localhost:$lport -> $NODE_NAME:$rport (Ctrl-C to stop)"
+        gcloud compute ssh "$NODE_NAME" --zone="$ZONE" --project="$PROJECT" -- -N -L "${lport}:localhost:${rport}"
+    fi
+}
+
 # --- TPU-only helpers ---
 
 gettraces() {

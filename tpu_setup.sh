@@ -55,6 +55,10 @@ pip install -U "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_
 curl -fsSL https://claude.ai/install.sh | bash
 grep -qxF "alias claude='claude --dangerously-skip-permissions'" ~/.bashrc \
     || echo "alias claude='claude --dangerously-skip-permissions'" >> ~/.bashrc
+grep -qxF '"\e[5~": history-search-backward' ~/.inputrc 2>/dev/null \
+    || echo '"\e[5~": history-search-backward' >> ~/.inputrc
+grep -qxF '"\e[6~": history-search-forward' ~/.inputrc 2>/dev/null \
+    || echo '"\e[6~": history-search-forward' >> ~/.inputrc
 export PATH="\$HOME/.local/bin:\$PATH"
 
 ADDITIONAL_CLAUDE_PLUGINS="${ADDITIONAL_CLAUDE_PLUGINS:-}" bash ~/install_claude_plugins.sh
@@ -70,6 +74,10 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 curl -fsSL https://claude.ai/install.sh | bash
 grep -qxF "alias claude='claude --dangerously-skip-permissions'" ~/.bashrc \
     || echo "alias claude='claude --dangerously-skip-permissions'" >> ~/.bashrc
+grep -qxF '"\e[5~": history-search-backward' ~/.inputrc 2>/dev/null \
+    || echo '"\e[5~": history-search-backward' >> ~/.inputrc
+grep -qxF '"\e[6~": history-search-forward' ~/.inputrc 2>/dev/null \
+    || echo '"\e[6~": history-search-forward' >> ~/.inputrc
 export PATH="\$HOME/.local/bin:\$PATH"
 
 ADDITIONAL_CLAUDE_PLUGINS="${ADDITIONAL_CLAUDE_PLUGINS:-}" bash ~/install_claude_plugins.sh

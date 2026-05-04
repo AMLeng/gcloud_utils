@@ -31,6 +31,16 @@ grep -qxF '"\e[5~": history-search-backward' ~/.inputrc 2>/dev/null \
     || echo '"\e[5~": history-search-backward' >> ~/.inputrc
 grep -qxF '"\e[6~": history-search-forward' ~/.inputrc 2>/dev/null \
     || echo '"\e[6~": history-search-forward' >> ~/.inputrc
+grep -qxF 'set paste' ~/.vimrc 2>/dev/null \
+    || echo 'set paste' >> ~/.vimrc
+grep -qxF 'set expandtab' ~/.vimrc 2>/dev/null \
+    || echo 'set expandtab' >> ~/.vimrc
+grep -qxF 'set tabstop=4' ~/.vimrc 2>/dev/null \
+    || echo 'set tabstop=4' >> ~/.vimrc
+grep -qxF 'set belloff=all' ~/.vimrc 2>/dev/null \
+    || echo 'set belloff=all' >> ~/.vimrc
+grep -qxF 'set hlsearch' ~/.vimrc 2>/dev/null \
+    || echo 'set hlsearch' >> ~/.vimrc
 export PATH="\$HOME/.local/bin:\$PATH"
 
 ADDITIONAL_CLAUDE_PLUGINS="${ADDITIONAL_CLAUDE_PLUGINS:-}" bash ~/install_claude_plugins.sh

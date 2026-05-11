@@ -138,7 +138,10 @@ SSHEOF
         echo "=========================================="
         cat ~/.ssh/deploy_key.pub
         echo "=========================================="
-        echo "Then re-run 'use-tpu --init' to retry the clone."
+        echo "Then re-run 'use-tpu --init' to retry the clone, or finish manually:"
+        echo "  printf 'Host github.com\n    IdentityFile ~/.ssh/deploy_key\n    IdentitiesOnly yes\n' >> ~/.ssh/config && chmod 600 ~/.ssh/config"
+        echo "  git clone ${TARGET_REPO}"
+        echo "  cd \\\$(basename ${TARGET_REPO} .git) && uv sync$(for extra in ${UV_EXTRAS:-}; do printf ' --extra %s' "$extra"; done)"
         echo ""
         exit 0
     else

@@ -128,8 +128,9 @@ SSHEOF
         # Clone failed and we have no deploy key — likely a private repo.
         # Generate one so the user can authorize this node.
         echo ""
-        echo "Clone failed. If \$REPO_PATH is private, you'll need to add a deploy key."
-        echo "Generating one now..."
+        echo "Clone failed. You'll need a deploy key if \$REPO_PATH is private, or"
+        echo "if TARGET_REPO is an SSH URL (git@github.com:...) — SSH requires"
+        echo "authentication even for public repos. Generating one now..."
         ssh-keygen -t ed25519 -f ~/.ssh/deploy_key -N "" -C "deploy-key-\$(hostname)"
         echo ""
         echo "=========================================="
